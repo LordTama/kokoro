@@ -30,7 +30,7 @@ $global_vars = array(
 	'LIGNE_IMPAIRE'				=>	'impair',
 	'NB_PAGE_DEFAUT'			=>	20,
 	
-	# Nom des diff�rents r�pertoires
+	# Nom des différents répertoires
 	# ------------------------------
 	'CLASSDIR'					=>	'class/',
 	'COMMUNDIR'					=>	'commun/',
