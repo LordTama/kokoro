@@ -12,13 +12,13 @@ $start_script_time = getmicrotime();
 function exception_handler($e) {
 	$msg = 'PHP Fatal error:  Uncaught exception "%s" with message "%s" in %s:%s<br />Stack trace:<br />%s<br />  thrown in %s on line %s';
 	$msg = sprintf($msg, get_class($e), $e->getMessage(), $e->getFile(), $e->getLine(), $e->getTraceAsString(), $e->getFile(), $e->getLine());
-	//...
+	// TODO...
 }
-//set_exception_handler('exception_handler');
+set_exception_handler('exception_handler');
 
 // Récupération des fichiers de configuration
 require_once('etc/conf.cfg.php');
-require_once(DOCROOT.CONFDIR.'roaminoo.cfg.php');
+require_once(DOCROOT.CONFDIR.'kokoro.cfg.php');
 
 // Auto-include des classes (avec 'spl_autoload')
 function __autoload_my_classes($classname) {
@@ -42,6 +42,4 @@ require_once(DOCROOT.COMMUNDIR.'securite.inc.php');
 
 // On initialise le template
 $xtpl = new XTemplate(DOCROOT.TEMPLATEDIR.$_SESSION['template'].'/home.tpl');
-$xtplGraph = new XTemplate(DOCROOT.TEMPLATEDIR.$_SESSION['template'].'/'.APPSDIR.APPAMORGOS.'graph/home.tpl');
-$xtplAjax = new XTemplate(DOCROOT.TEMPLATEDIR.$_SESSION['template'].'/'.APPSDIR.APPBDROAMING.'ajax-structure.tpl');
 ?>

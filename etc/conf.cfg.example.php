@@ -33,7 +33,7 @@ $global_vars = array(
 	# Nom des différents répertoires
 	# ------------------------------
 	'CLASSDIR'					=>	'class/',
-	'COMMUNDIR'					=>	'commun/',
+	'COMMUNDIR'					=>	'common/',
 	'CSSDIR'					=>	'css/',
 	'BDDDIR'					=>	'db/',
 	'DATADIR'					=>	'data/',

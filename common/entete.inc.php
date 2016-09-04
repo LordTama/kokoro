@@ -6,11 +6,10 @@
 	// Remplissage des variables de la trame
 	$xtpl->assign('slug', TITRE_SITE);
 	$xtpl->assign('separateur', '-');
-	// Librairies JQUERY et CSS
+	
+	// Feuille de style CSS
 	$xtpl->assign('chemin_css', BASE_REP.TEMPLATEDIR.$_SESSION['template'].'/'.CSSDIR.'style.css');
 	$xtpl->parse('main.css');
-	$xtpl->assign('url_lib_jquery', BASE_REP.JAVASCRIPTDIR.'jquery-'.JQUERYVERSION.'-min.js');
-	$xtpl->assign('url_jquery', BASE_REP.JAVASCRIPTDIR.'global.js');
 
 	// Liens divers
 	$xtpl->assign('logo_path', BASE_REP.IMG_GEN.'logo_orange.gif');
@@ -36,5 +35,4 @@
 	$xtpl->assign('simcard_classeur_link', URL.APPSDIR.APPSIMCARD. '?action=classeurPerso');
 	$xtpl->assign('simcard_audit_link', URL.APPSDIR.APPSIMCARD. '?action=audit');
 	$xtpl->assign('simcard_stats_link', URL.APPSDIR.APPSIMCARD. '?action=stats');
-
 ?>

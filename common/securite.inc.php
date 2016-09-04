@@ -15,7 +15,6 @@ if(!isset($_SESSION['usr_id'])) {
 	else $User->connect($_COOKIE['login'], $_COOKIE['password']);
 }
 
-//$User->setUserId($_SESSION['usr_id']);
 $User->usr_id = $_SESSION['usr_id'];
 
 // On redirige si les accès sont mauvais
