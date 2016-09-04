@@ -77,14 +77,14 @@ $global_vars = array(
 		// Pas de jointure
 	)),
 	'KOK_RIGHT_JOINTURES'		=>	serialize(array(
-	 	$kok_right_nom.'.'.$rgt_role_id		=>	$kok_role_nom.'.'.$kok_role_id,
-	 	$kok_right_nom.'.'.$rgt_user_id		=>	$kok_user_nom.'.'.$kok_user_id,
+	 	$kok_right_nom.'.rgt_role_id'	=>	$kok_role_nom.'.'.$kok_role_id,
+	 	$kok_right_nom.'.rgt_user_id'	=>	$kok_user_nom.'.'.$kok_user_id,
 	)),
 	'KOK_ROLE_JOINTURES'		=>	serialize(array(
 		// Pas de jointure
 	)),
 	'KOK_USER_JOINTURES'		=>	serialize(array(
-	  	$kok_user_nom.'.'.$kok_user_id		=>	$kok_right_nom.'.rgt_user_id',
+	  	$kok_user_nom.'.'.$kok_user_id	=>	$kok_right_nom.'.rgt_user_id',
 	)),
 
 );
