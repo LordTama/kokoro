@@ -6,10 +6,12 @@
 
 class User extends Objet {
 	function __construct($db) {
-		parent::__construct($db, array_merge(unserialize(ROA_USER_STRUCTURE), unserialize(ROA_RIGHT_STRUCTURE), unserialize(ROA_ROLE_STRUCTURE)), array_merge(unserialize(ROA_USER_CHAMP_ID), unserialize(ROA_RIGHT_CHAMP_ID), unserialize(ROA_ROLE_CHAMP_ID)));	
-		foreach(unserialize(ROA_USER_JOINTURES) as $key => $value) $this->setJointure($key, $value);
-		foreach(unserialize(ROA_RIGHT_JOINTURES) as $key => $value) $this->setJointure($key, $value);
-		foreach(unserialize(ROA_ROLE_JOINTURES) as $key => $value) $this->setJointure($key, $value);
+		parent::__construct($db, array_merge(unserialize(KOK_USER_STRUCTURE), unserialize(KOK_RIGHT_STRUCTURE), unserialize(KOK_ROLE_STRUCTURE)), array_merge(unserialize(KOK_USER_CHAMP_ID), unserialize(KOK_RIGHT_CHAMP_ID), unserialize(KOK_ROLE_CHAMP_ID)));
+		
+		foreach(unserialize(KOK_USER_JOINTURES) as $key => $value) $this->setJointure($key, $value);
+		foreach(unserialize(KOK_RIGHT_JOINTURES) as $key => $value) $this->setJointure($key, $value);
+		foreach(unserialize(KOK_ROLE_JOINTURES) as $key => $value) $this->setJointure($key, $value);
+		
 		$this->langue->load('user.class.php');
 	}
 	
