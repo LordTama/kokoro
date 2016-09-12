@@ -76,7 +76,7 @@ class Db {
 		return $result;
 	}
 
-	public function query_to_one($requete, $result_type = MYSQL_BOTH) {
+	public function query_to_one($requete, $result_type = MYSQL_ASSOC) {
 		$this->message = '';
 		$result = mysql_query($requete);
 		
@@ -92,7 +92,7 @@ class Db {
 		return $resultat;
 	}
 
-	public function query_to_array($requete, $result_type = MYSQL_BOTH) {
+	public function query_to_array($requete, $result_type = MYSQL_ASSOC) {
 		$this->message = '';
 		
 		$resultats = mysql_query($requete);
@@ -115,10 +115,6 @@ class Db {
 		return $result;
 	}
 
-	public function get_nb_select($result) {
-		return mysql_num_rows($result);
-	}
-	
 	public function get_nb_affected() {
 		return mysql_affected_rows();
 	}
@@ -127,7 +123,7 @@ class Db {
 		return mysql_insert_id();
 	}
 	
-	public function get_nb_requete() {
+	public function get_nb_request() {
 		return $this->compteur;
 	}
 	

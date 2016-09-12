@@ -3,19 +3,20 @@
 * Gestion de la connexion au serveur MySql
 */
 
-class Db {
+class Db implements iDb {
 	private $db_id;			// Ressource (link) de connexion à la BD
-	private $compteur;		// Compte le nombre de requêtes qu'il fait
+	private $db_instance;	// Booléen pour savoir si une connexion est ouverte
+	private $compteur;		// Compte le nombre de requêtes faite via cet objet
 
 	private $langue;		// Instance de la classe Langue
 	private $message;		// Messages d'erreurs
 
 	public function __construct($bdd_nom = NULL) {
-		$this->db_id = -1;
+		$this->db_instance = false;
 		$this->compteur = 0;
 		
 		$this->langue = new Langue();
-		$this->langue->load('mysql.class.php');
+		$this->langue->load('mysqli.class.php');
 		$this->message = '';
 		
 		$this->connect($bdd_nom);
@@ -25,113 +26,115 @@ class Db {
 		$this->close();
 	}
 
-	private function connect($bdd_nom) {
-		if(empty($bdd_nom)) $bdd_nom = BDD_NOM;
-		if ($this->db_id < 0) {
-			$this->db_id = mysqli_connect(BDD_HOTE, BDD_USER, BDD_PWD);
-			if (!$this->db_id) {
-				$this->message = $this->langue->get('cant_connect');
-				return false;
-			}
-			if (!mysqli_select_db($this->db_id, $bdd_nom)) {
-				$this->message = sprintf($this->langue->get('cant_select'), $bdd_nom);
-				return false;
-			}
-			// Force l'encodage des transactions en UTF8
-			mysqli_query($this->db_id, "SET NAMES UTF8");
-		}
-		return true;
-	}
-
-	private function close() {
-		if ($this->db_id > 0) {
-			mysqli_close($this->db_id);
-			$this->db_id = -1;
-			return true;
-		}
-		return false;
-	}
-
-	public function db_selection($bdd_nom){
+	// Open a connection to the database
+	private function connect($bdd_nom): bool {
 		$this->message = '';
-		if (!mysqli_select_db($this->db_id, $bdd_nom)) {
+		if(empty($bdd_nom)) $bdd_nom = BDD_NOM;
+		
+		if (!$this->db_instance) {
+			$this->db_id = new mysqli(BDD_HOTE, BDD_USER, BDD_PWD, $bdd_nom);
+			
+			if ($this->db_id->connect_errno > 0) {
+				$this->message = sprintf($this->langue->get('cant_connect'), $this->db_id->connect_errno, $this->db_id->connect_error);
+				return false;
+			}
+			else {
+				$this->db_instance = true;
+			}
+		}
+		
+		return $this->db_instance;
+	}
+
+	// Close the connection to the database
+	private function close() {
+		if ($this->db_instance) {
+			$this->db_id->close();
+			$this->db_id = null;
+			$this->db_instance = false;
+		}
+	}
+
+	// Change the current database used
+	public function db_selection($bdd_nom): bool {
+		$this->message = '';
+		if ($this->db_instance && !$this->db_id->select_db($bdd_nom)) {
 			$this->message = sprintf($this->langue->get('cant_select'), $bdd_nom);
 			return false;
 		}
 		return true;
 	}
 
-	public function query($requete) {
+	// Query the database, no returned value
+	public function query($requete): bool {
 		$this->message = '';
-		$result = mysqli_query($this->db_id, $requete);
-		$message = mysqli_error($this->db_id);
+		$result = $this->db_id->query($requete);
 		
-		if($message != '') {
-			$this->message = sprintf($this->langue->get('cant_query'), $message, $requete);
+		if(!$result) {
+			$this->message = sprintf($this->langue->get('cant_query'), $this->db_id->error(), $requete);
 			return false;
 		}
-		
 		$this->compteur++;
 		
-		return $result;
+		return true;
 	}
 
-	public function query_to_one($requete, $result_type = MYSQL_BOTH) {
+	// Query the database, only first value is returned
+	public function query_to_one($requete, $result_type = MYSQLI_ASSOC): array {
 		$this->message = '';
-		$result = mysqli_query($this->db_id, $requete);
+		$result = $this->db_id->query($requete);
 		
-		$message = mysqli_error($this->db_id);
-		if($message != '')	{
-			$this->message = sprintf($this->langue->get('cant_query'), $message, $requete);
+		if(!$result) {
+			$this->message = sprintf($this->langue->get('cant_query'), $this->db_id->error(), $requete);
 			return false;
 		}
-		$resultat = mysqli_fetch_array($result, $result_type);
+		if($result->num_rows > 1) {
+			$this->message = sprintf($this->langue->get('more_than_one'), $result->num_rows, $requete);
+			return false;
+		}
 		
+		$row = $result->fetch_array($result_type);
+		$result->close();
 		$this->compteur++;
 		
-		return $resultat;
+		return $row;
 	}
 
-	public function query_to_array($requete, $result_type = MYSQL_BOTH) {
+	// Query the database, all values are returned
+	public function query_to_array($requete, $result_type = MYSQLI_ASSOC): array {
 		$this->message = '';
-		
-		$resultats = mysqli_query($this->db_id, $requete);
-		
-		$message = mysqli_error($this->db_id);
-		if($message != '') {
-			$this->message = sprintf($this->langue->get('cant_query'), $message, $requete);
-			return false;
-		}
-		
 		$i=0;
-		$result = array();
-		while ($resultat = mysqli_fetch_array($resultats, $result_type)) {
-			$result[$i] = $resultat;
+		$rows = array();
+		$result = $this->db_id->query($requete);
+		
+		if(!$result) {
+			$this->message = sprintf($this->langue->get('cant_query'), $this->db_id->error(), $requete);
+			return false;
+		}
+		
+		while ($row = $result->fetch_array($result_type)) {
+			$rows[$i] = $row;
 			$i++;
 		}
-		
+		$result->close();
 		$this->compteur++;
 
-		return $result;
+		return $rows;
 	}
 
-	public function get_nb_select($result) {
-		return mysqli_num_rows($result);
-	}
-	
-	public function get_nb_affected() {
-		return mysqli_affected_rows($this->db_id);
+	public function get_nb_affected(): int {
+		return $this->db_id->affected_rows();
 	}
 
-	public function get_last_insertid() {
-		return mysqli_insert_id($this->db_id);
+	public function get_last_insertid(): int {
+		return $this->db_id->insert_id();
 	}
 	
-	public function get_nb_requete() {
+	public function get_nb_request(): int {
 		return $this->compteur;
 	}
 	
-	public function get_message() {
+	public function get_message(): string {
 		return $this->mesage;
 	}
 }

@@ -27,6 +27,7 @@ function __autoload_my_classes($classname) {
 spl_autoload_register('__autoload_my_classes');
 
 // Include de la librairie de gestion de la BD
+require_once(DOCROOT.BDDDIR.'template.class.php');
 require_once(DOCROOT.BDDDIR.BDD_TYPE.'.class.php');
 
 // Include des librairies de fonctions
@@ -38,7 +39,7 @@ $dir_func->close();
 $db = new Db();
 
 // Vérification de la sécurité
-require_once(DOCROOT.COMMUNDIR.'securite.inc.php');
+require_once(DOCROOT.COMMUNDIR.'security.inc.php');
 
 // On initialise le template
 $xtpl = new XTemplate(DOCROOT.TEMPLATEDIR.$_SESSION['template'].'/home.tpl');

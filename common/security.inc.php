@@ -18,9 +18,8 @@ if(!isset($_SESSION['usr_id'])) {
 $User->usr_id = $_SESSION['usr_id'];
 
 // On redirige si les accès sont mauvais
-echo "toto";
-if(!$User->checkAccess()) redirige(URL.LOGIN_PAGE);
-echo "titi";
+//if(!$User->checkAccess()) redirige(URL.LOGIN_PAGE);
+if(!$User->checkAccess()) exit("Client pas loggué");
 
 // Bloquage d'une tentative de soumission de formulaire en provenance de l'extérieur
 if((count($_POST) > 0) && (!isset($_SERVER['HTTP_REFERER']))) exit();

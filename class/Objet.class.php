@@ -1,7 +1,7 @@
 <?php
 /**
-* Classe abstraite g�n�rique traitant un enregistrement d'une table de BD.
-* A utiliser exclusivement pour d�river.
+* Classe abstraite générique traitant un enregistrement d'une table de BD.
+* A utiliser exclusivement pour dériver.
 */
 
 require_once(DOCROOT.CONFDIR.'objet.cfg.php');
@@ -199,13 +199,13 @@ abstract class Objet {
 		$this->nb_resultats = 0;
 		// Si on demande une page particuliere, on compte les résultats, sinon ce n'est pas la peine
 		if(!empty($page) && !empty($record)) {
-			$requete = sprintf('SELECT COUNT(*) as nb_resultats FROM %s WHERE %s', implode(', ', $from), $where);
+			$requete = sprintf('SELECT COUNT(*) as nb_result FROM %s WHERE %s', implode(', ', $from), $where);
 			
 			// Construction de la clause LIMIT
-			if ($retour = $this->db->query_to_one($requete, MYSQL_ASSOC)) {
-				if ($retour['nb_resultats'] > 0) {
-					$this->nb_resultats = $retour['nb_resultats'];
-					$this->nb_pages = ceil($retour['nb_resultats'] / $record);
+			if ($retour = $this->db->query_to_one($requete)) {
+				if ($retour['nb_result'] > 0) {
+					$this->nb_resultats = $retour['nb_result'];
+					$this->nb_pages = ceil($retour['nb_result'] / $record);
 					$offset = ($page - 1) * $record;
 					$limit = sprintf('LIMIT %d, %d', $offset, $record);
 				}
@@ -231,7 +231,7 @@ abstract class Objet {
 		// echo 
 		$requete = sprintf('SELECT %s%s FROM %s WHERE %s %s %s', $option_select, implode(', ', $select), implode(', ', $from), $where, $order_by, $limit);
 		
-		if (is_array($retour = $this->db->query_to_array($requete, MYSQL_ASSOC))) {
+		if (is_array($retour = $this->db->query_to_array($requete))) {
 			$objets = array();
 			$type = get_class($this);
 			
@@ -333,7 +333,7 @@ abstract class Objet {
 		// Construction de la requête finale
 		$requete = sprintf('SELECT %s FROM %s WHERE %s', implode(', ', $select), implode(', ', $from), $where);
 		
-		if ($retour = $this->db->query_to_one($requete, MYSQL_ASSOC)) {
+		if ($retour = $this->db->query_to_one($requete)) {
 			// Reconstruction du tableau de données
 			foreach($retour as $nom_champ_complet => $valeur_champ) {
 				list($nom_table, $nom_champ) = explode('.', $nom_champ_complet);
@@ -469,16 +469,11 @@ abstract class Objet {
 	* Positionne la valeur d'un membre de la classe (et les membres dans les jointures si besoin est)
 	*/
 	public function __set($membre, $valeur) {
-		//echo '<br>Set '.$membre.' with '.$valeur.'<br>';
 		foreach($this->structure as $table => $value) {
 			if(in_array($membre, $value)) {
-				//echo "trouvé";
-				//echo 'trouvé dans la table '.$table.'<br>';
 				$this->donnees[$table][$membre] = $valeur;
 				$this->modifs[$table][$membre] = true;
-				//echo 'avant propa '.$this->__toString().'<br>';
 				$this->propageVar($membre);
-				//echo 'après propa '.$this->__toString().'<br>';
 				return;
 			}
 		}
@@ -488,7 +483,9 @@ abstract class Objet {
 	* Indique si un membre d'une classe est positionnée
 	*/
 	public function __isset($membre) {
-		foreach($this->structure as $table => $value) if(in_array($membre, $value)) return isset($this->donnees[$table][$membre]);
+		foreach($this->structure as $table => $value) {
+			if(in_array($membre, $value)) return isset($this->donnees[$table][$membre]);
+		}
 		throw new InvalidArgumentException("Property ($membre) doesn't exist");
 	}
 	/**
@@ -525,7 +522,6 @@ abstract class Objet {
 				}
 			}
 		}
-		//print_r($this->modifs);
 	}
 	
 	/**
@@ -590,11 +586,6 @@ abstract class Objet {
 		}
 	}
 	
-	/*foreach($objet->getMessage(MSG_FORM) as $champ_err => $texte_err) {
-		$xtpl->assign("trucmsgform_".$champ_err, $texte_err);
-		$xtpl->parse(OLD."trucmsgform_".$champ_err);
-	}*/
-	
 	/**
 	* Permet de lister graphiquement le contenu d'un objet
 	*/
@@ -602,8 +593,8 @@ abstract class Objet {
 		$debug = '';
 		foreach($this->donnees as $nom_table => $table_champs_donnees) {
 			foreach($table_champs_donnees as $nom_champ => $value) {
-				// $debug .= sprintf('%s.%s => %s%s<BR />', $nom_table, $nom_champ, $value, $this->modifs[$nom_table][$nom_champ] ? ' Modifi�' : '');
-				//$debug .= sprintf('%s.%s => %s<BR />', $nom_table, $nom_champ, $value);
+				$debug .= sprintf('%s.%s => %s%s<BR />', $nom_table, $nom_champ, $value, $this->modifs[$nom_table][$nom_champ] ? ' Modifié' : '');
+				$debug .= sprintf('%s.%s => %s<BR />', $nom_table, $nom_champ, $value);
 			}
 		}
 		return $debug;
